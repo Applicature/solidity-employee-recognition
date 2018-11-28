@@ -1,0 +1,28 @@
+<testsuite name="Mocha Tests" tests="26" failures="0" errors="0" skipped="0" timestamp="Mon, 09 Jul 2018 06:58:36 GMT" time="71.482">
+<testcase classname="Contract: NYTICSNonUSCrowdsale" name="deploy contract &#x26; check state" time="3.476"/>
+<testcase classname="Contract: NYTICSNonUSCrowdsale check contribution" name="check flow | updateState &#x26; internalContribution" time="13.417"/>
+<testcase classname="Contract: NYTICSUSCrowdsale" name="deploy contract &#x26; check state" time="2.739"/>
+<testcase classname="Contract: NYTICSUSCrowdsale check contribution" name="check flow | updateState &#x26; internalContribution" time="2.6"/>
+<testcase classname="Contract: StatsContract" name="deploy contract &#x26; check getTokens | getWeis" time="5.236"/>
+<testcase classname="Contract: StatsContract" name="deploy contract &#x26; check getStats" time="6.371"/>
+<testcase classname="Contract: NYTICSPricingStrategy" name="check getTierIndex returns  properly index" time="0.802"/>
+<testcase classname="Contract: NYTICSPricingStrategy" name="check getActualDates" time="0.626"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getTokens" name="zero weis  should return zero tokens" time="0.04"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getTokens" name="less than  min purchase" time="0.104"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getTokens" name="before sale period " time="0.265"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getTokens" name="outdated" time="0.327"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getTokens" name="tokens less than available" time="0.132"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getTokens" name="success for each  tier and check maxTokensCollected" time="0.551"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getTokens" name="check airdrop threshhold" time="0.141"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getWeis" name="zero tokens should return zero weis" time="0.037"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getWeis" name="less than  min purchase" time="0.147"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getWeis" name="outdated" time="0.223"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getWeis" name="before sale period" time="0.401"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getWeis" name="tokens less than available | maxTokensCollected" time="0.225"/>
+<testcase classname="Contract: NYTICSPricingStrategy check getWeis" name="success for each  tier" time="0.465"/>
+<testcase classname="Contract: NYTICSPricingStrategy check methods" name="updateTierTokens" time="0"/>
+<testcase classname="Contract: NYTICSPricingStrategy check methods" name="setCrowdsaleAgent" time="0.726"/>
+<testcase classname="Contract: NYTICSPricingStrategy check methods" name="getArrayOfUSTiers | updateTierTokens" time="1.609"/>
+<testcase classname="Contract: NYTICSPricingStrategy check methods" name="getArrayOfNonUSTiers | updateTier" time="3.793"/>
+<testcase classname="Contract: Token" name="deploy check state" time="2.027"/>
+</testsuite>
