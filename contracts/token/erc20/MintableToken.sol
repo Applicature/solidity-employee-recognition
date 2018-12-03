@@ -41,6 +41,15 @@ contract MintableToken is BasicToken, Claimable, Managed {
         mintInternal(_holder, _tokens);
     }
 
+    /// @return available tokens
+    function availableTokens() 
+        public 
+        view 
+        returns (uint256 tokens) 
+    {
+        return maxSupply.sub(totalSupply());
+    }
+
     function mintInternal(address _holder, uint256 _tokens) internal {
         require(
             totalSupply_.add(_tokens) <= maxSupply,
@@ -55,13 +64,5 @@ contract MintableToken is BasicToken, Claimable, Managed {
         emit Mint(_holder, _tokens);
     }
 
-    /// @return available tokens
-    function availableTokens() 
-        public 
-        view 
-        returns (uint256 tokens) 
-    {
-        return maxSupply.sub(totalSupply());
-    }
 }
 

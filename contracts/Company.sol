@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+//import "openzeppelin-solidity/contracts/token/ERC20/BurnableToken.sol";
 import "./Managed.sol";
 import "./token/erc20/openzeppelin/OpenZeppelinERC20.sol";
 import "./token/erc20/MintableToken.sol";
@@ -14,6 +15,10 @@ contract Company is OpenZeppelinERC20, MintableToken {
     uint256 public startAt;
     uint256 public periodDuration;
     uint256 public totalSupplySyncedAtPeriodIndex;
+
+    event RecognizeSent(address indexed whoSent, address indexed toWhomSent, uint256 _tokensAmount);
+
+    event RewardExchanged(address indexed whoSent, uint256 _tokensAmount);
 
     constructor(
         address _managementAddress,
@@ -138,18 +143,26 @@ contract Company is OpenZeppelinERC20, MintableToken {
 
     function transfer(address _to, uint256 _value) public returns (bool) {
         require(_to != address(0));
-
         uint256 currentPeriod = getCurrentPeriod();
         require(_value <= balances[currentPeriod][msg.sender]);
 
         balances[currentPeriod][msg.sender] = balances[currentPeriod][msg.sender].sub(_value);
         balances[currentPeriod][_to] = balances[currentPeriod][_to].add(_value);
         emit Transfer(msg.sender, _to, _value);
+
+        if (_to == address(rewardExchangeAddress)) {
+            emit RewardExchanged(msg.sender, _value);
+
+            return true;
+        }
+
+        emit RecognizeSent(msg.sender, _to, _value);
         return true;
     }
 
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
         require(_to != address(0));
+
         uint256 currentPeriod = getCurrentPeriod();
         require(_value <= balances[currentPeriod][_from]);
         require(_value <= allowed[_from][msg.sender]);
@@ -158,6 +171,14 @@ contract Company is OpenZeppelinERC20, MintableToken {
         balances[currentPeriod][_to] = balances[currentPeriod][_to].add(_value);
         allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
         emit Transfer(_from, _to, _value);
+
+        if (_to == address(rewardExchangeAddress)) {
+            emit RewardExchanged(_from, _value);
+
+            return true;
+        }
+
+        emit RecognizeSent(_from, _to, _value);
         return true;
     }
 
