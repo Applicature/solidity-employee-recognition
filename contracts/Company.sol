@@ -22,6 +22,7 @@ contract Company is OpenZeppelinERC20, MintableToken {
 
     constructor(
         address _managementAddress,
+        address _rewardExchangeAddress,
         uint256 _startAt,
         uint256 _periodDuration,
         uint256 _periodTokenSupply,
@@ -40,7 +41,12 @@ contract Company is OpenZeppelinERC20, MintableToken {
             _periodDuration > 0,
             ERROR_WRONG_AMOUNT
         );
+        require(
+            _rewardExchangeAddress != address(0),
+            ERROR_NOT_AVAILABLE
+        );
 
+        rewardExchangeAddress = _rewardExchangeAddress;
         startAt = _startAt;
         periodDuration = _periodDuration;
         companyState = CompanyState.BeforeRecognizingPeriod;

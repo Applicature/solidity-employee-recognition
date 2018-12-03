@@ -20,7 +20,8 @@ contract CompanyFabric is Managed {
     {}
 
     function createCompany(
-        address _managementAddress,
+        address _companyOwner,
+        address _rewardExchangeAddress,
         uint256 _startAt,
         uint256 _periodDuration,
         uint256 _periodTotalSupply,
@@ -30,14 +31,23 @@ contract CompanyFabric is Managed {
         public
         requirePermission(CAN_CREATE_COMPANY)
     {
+        require(
+            _companyOwner != address(0),
+            ERROR_NOT_AVAILABLE
+        );
+
         Company company = new Company(
-            _managementAddress,
+            address(management),
+            _rewardExchangeAddress,
             _startAt,
             _periodDuration,
             _periodTotalSupply,
             _name,
             _decimals
         );
+
+        company.transferOwnership(_companyOwner);
+
         companies.push(company);
         companiesList[company] = true;
 
