@@ -29,6 +29,7 @@ contract MintableToken is BasicToken, Claimable, Managed {
         public
         Managed(_management)
     {
+        require(_maxSupply > 0, ERROR_WRONG_AMOUNT);
         maxSupply = _maxSupply;
     }
 

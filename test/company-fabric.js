@@ -94,5 +94,89 @@ contract('CompanyFabric', accounts => {
             assert.equal(await company.pendingOwner.call(), ownerAddress);
         });
 
+        it('check creating company parameters', async () => {
+            await management.registerContract(CONTRACT_COMPANY_FABRIC, fabric.address)
+                .then(Utils.receiptShouldSucceed);
+            await management.setPermission(accounts[1], CAN_CREATE_COMPANY, true)
+                .then(Utils.receiptShouldSucceed);
+
+            await fabric.createCompany(
+                0x0,
+                rewardAddress,
+                startAt,
+                periodDuration,
+                periodTotalSupply,
+                'Test',
+                18,
+                {from: accounts[1]}
+            )
+                .then(Utils.receiptShouldFailed)
+                .catch(Utils.catchReceiptShouldFailed);
+
+            await fabric.createCompany(
+                ownerAddress,
+                0x0,
+                startAt,
+                periodDuration,
+                periodTotalSupply,
+                'Test',
+                18,
+                {from: accounts[1]}
+            )
+                .then(Utils.receiptShouldFailed)
+                .catch(Utils.catchReceiptShouldFailed);
+
+            await fabric.createCompany(
+                ownerAddress,
+                rewardAddress,
+                parseInt(new Date().getTime() / 1000) - 3600,
+                periodDuration,
+                periodTotalSupply,
+                'Test',
+                18,
+                {from: accounts[1]}
+            )
+                .then(Utils.receiptShouldFailed)
+                .catch(Utils.catchReceiptShouldFailed);
+
+            await fabric.createCompany(
+                ownerAddress,
+                rewardAddress,
+                startAt,
+                0,
+                periodTotalSupply,
+                'Test',
+                18,
+                {from: accounts[1]}
+            )
+                .then(Utils.receiptShouldFailed)
+                .catch(Utils.catchReceiptShouldFailed);
+
+            await fabric.createCompany(
+                ownerAddress,
+                rewardAddress,
+                startAt,
+                periodDuration,
+                0,
+                'Test',
+                18,
+                {from: accounts[1]}
+            )
+                .then(Utils.receiptShouldFailed)
+                .catch(Utils.catchReceiptShouldFailed);
+
+            await fabric.createCompany(
+                ownerAddress,
+                rewardAddress,
+                startAt,
+                periodDuration,
+                periodTotalSupply,
+                'Test',
+                18,
+                {from: accounts[1]}
+            )
+                .then(Utils.receiptShouldSucceed);
+        });
+
     });
 });
