@@ -18,7 +18,8 @@ contract Company is OpenZeppelinERC20, MintableToken {
     event RecognizeSent(address indexed whoSent, address indexed toWhomSent, uint256 _tokensAmount);
 
     event RewardExchanged(address indexed whoSent, uint256 _tokensAmount);
-
+event Debug(string n, uint256 v);
+event DebugA(string n, address v);
     constructor(
         address _managementAddress,
         address _rewardExchangeAddress,
@@ -69,11 +70,6 @@ contract Company is OpenZeppelinERC20, MintableToken {
 
     function totalSupply() public view returns (uint256) {
         return isTotalSupplySynced() ? super.totalSupply() : 0;
-    }
-
-    function setTotalSupplySynced() public {
-        totalSupplySyncedAtPeriodIndex = getCurrentPeriod();
-        totalSupply_ = 0;
     }
 
     function verify(
@@ -185,6 +181,11 @@ contract Company is OpenZeppelinERC20, MintableToken {
 
         emit RecognizeSent(_from, _to, _value);
         return true;
+    }
+
+    function setTotalSupplySynced() internal {
+        totalSupplySyncedAtPeriodIndex = getCurrentPeriod();
+        totalSupply_ = 0;
     }
 
 }
