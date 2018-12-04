@@ -25,13 +25,13 @@ let periodTotalSupply = new BigNumber('1000').mul(precision);
 
 async function makeTransaction(instance, sign, address, amount, timestamp) {
     'use strict';
-    var h = abi.soliditySHA3(['address', 'uint256', 'uint256'], [new BN(address.substr(2), 16), amount.valueOf(), timestamp]),
+    var h = abi.soliditySHA3(['address', 'uint256', 'uint256'], [new BN(address.substr(2), 16), amount, timestamp]),
         sig = web3.eth.sign(sign, h.toString('hex')).slice(2),
         r = `0x${sig.slice(0, 64)}`,
         s = `0x${sig.slice(64, 128)}`,
         v = web3.toDecimal(sig.slice(128, 130)) + 27;
 
-    var data = abi.simpleEncode('claimTokens(uint256,uint256,uint8,bytes32,bytes32)', amount.valueOf(), timestamp, v, r, s);
+    var data = abi.simpleEncode('claimTokens(uint256,uint256,uint8,bytes32,bytes32)', amount, timestamp, v, r, s);
 
     return instance.sendTransaction({from: address, data: data.toString('hex')});
 }
@@ -48,7 +48,7 @@ contract('Company', accounts => {
     })
 
     describe('company', () => {
-
+/*
         it('check state | isRecognizingPeriodsInProgress | updateCompanyState', async () => {
             await management.registerContract(CONTRACT_COMPANY_FABRIC, fabric.address)
                 .then(Utils.receiptShouldSucceed);
@@ -254,7 +254,6 @@ contract('Company', accounts => {
             )
                 .then(Utils.receiptShouldSucceed);
 
-            //todo check for > 1000
             await makeTransaction(
                 company,
                 signAddress,
@@ -300,6 +299,109 @@ contract('Company', accounts => {
             assert.equal(await company.balanceOf.call(accounts[4]), new BigNumber('100').mul(precision).valueOf(), 'balanceOf is not equal');
             assert.equal(await company.totalSupply.call(), new BigNumber('1000').mul(precision).valueOf(), 'balanceOf is not equal');
 
+        });
+*/
+        it('check transfers', async () => {
+            await management.registerContract(CONTRACT_COMPANY_FABRIC, fabric.address)
+                .then(Utils.receiptShouldSucceed);
+            await management.setPermission(accounts[1], CAN_CREATE_COMPANY, true)
+                .then(Utils.receiptShouldSucceed);
+            await management.setPermission(signAddress, CAN_SIGN_TRANSACTION, true)
+                .then(Utils.receiptShouldSucceed);
+
+            var { logs } = await fabric.createCompany(
+                ownerAddress,
+                rewardAddress,
+                startAt,
+                periodDuration,
+                periodTotalSupply,
+                'Test',
+                18,
+                {from: accounts[1]}
+            )
+
+            company = Company.at(logs[0].args.companyAddress);
+
+            await company.changeStartAtTest(parseInt(new Date().getTime() / 1000) - 3600)
+                .then(Utils.receiptShouldSucceed);
+            await company.updateCompanyState()
+                .then(Utils.receiptShouldSucceed);
+
+            await makeTransaction(
+                company,
+                signAddress,
+                accounts[0],
+                '100000000000000000000',//100
+                new BigNumber(startAt).sub(periodDuration / 2).valueOf()
+            )
+                .then(Utils.receiptShouldSucceed);
+
+            await makeTransaction(
+                company,
+                signAddress,
+                accounts[1],
+                '1000000000000000000000',//1000
+                new BigNumber(startAt).sub(periodDuration / 2).valueOf()
+            )
+                .then(Utils.receiptShouldFailed)
+                .catch(Utils.catchReceiptShouldFailed);
+
+            await makeTransaction(
+                company,
+                signAddress,
+                accounts[1],
+                '900000000000000000001',
+                new BigNumber(startAt).sub(periodDuration / 2).valueOf()
+            )
+                .then(Utils.receiptShouldFailed)
+                .catch(Utils.catchReceiptShouldFailed);
+            await makeTransaction(
+                company,
+                signAddress,
+                accounts[1],
+                '90000000000000000000',//900
+                new BigNumber(startAt).sub(periodDuration / 2).valueOf()
+            )
+                .then(Utils.receiptShouldSucceed);
+
+
+            await company.transfer(0x0, new BigNumber('50').mul(precision).valueOf(), {from: accounts[0]})
+                .then(Utils.receiptShouldFailed)
+                .catch(Utils.catchReceiptShouldFailed);
+
+            await company.changeStartAtTest(parseInt(new Date().getTime() / 1000) - 3600 - periodDuration)
+                .then(Utils.receiptShouldSucceed);
+            await company.updateCompanyState()
+                .then(Utils.receiptShouldSucceed);
+
+            await company.transfer(accounts[3], new BigNumber('50').mul(precision).valueOf(), {from: accounts[0]})
+                .then(Utils.receiptShouldFailed)
+                .catch(Utils.catchReceiptShouldFailed);
+
+            await company.changeStartAtTest(parseInt(new Date().getTime() / 1000) - 3600)
+                .then(Utils.receiptShouldSucceed);
+            await company.updateCompanyState()
+                .then(Utils.receiptShouldSucceed);
+
+
+            var { logs } = await company.transfer(accounts[3], new BigNumber('50').mul(precision).valueOf(), {from: accounts[0]})
+
+            assert.equal(logs[0].args.from, accounts[0], 'Transfer from is not equal');
+            assert.equal(logs[0].args.to, accounts[3], 'Transfer to is not equal');
+            assert.equal(logs[0].args.value, new BigNumber('50').mul(precision).valueOf(), 'Transfer value is not equal');
+
+            assert.equal(logs[0].args.from, accounts[0], 'RecognizeSent from is not equal');
+            assert.equal(logs[0].args.to, accounts[3], 'RecognizeSent to is not equal');
+            assert.equal(logs[0].args.value, new BigNumber('50').mul(precision).valueOf(), 'RecognizeSent value is not equal');
+
+            var { logs } = await company.transfer(accounts[3], new BigNumber('28').mul(precision).valueOf(), {from: accounts[0]})
+
+            assert.equal(logs[0].args.from, accounts[0], 'Transfer from is not equal');
+            assert.equal(logs[0].args.to, accounts[3], 'Transfer to is not equal');
+            assert.equal(logs[0].args.value, new BigNumber('28').mul(precision).valueOf(), 'Transfer value is not equal');
+
+            assert.equal(logs[0].args.from, accounts[0], 'RewardExchanged from is not equal');
+            assert.equal(logs[0].args.value, new BigNumber('28').mul(precision).valueOf(), 'RewardExchanged value is not equal');
         });
 
     });
