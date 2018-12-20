@@ -3,7 +3,7 @@ pragma solidity ^0.4.23;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/BasicToken.sol";
 import "openzeppelin-solidity/contracts/ownership/Claimable.sol";
-import "../../Managed.sol";
+import "../../managment/Managed.sol";
 
 
 /// @title MintableToken
@@ -11,6 +11,7 @@ import "../../Managed.sol";
 /// @notice allow to mint tokens
 /// @dev Base class
 contract MintableToken is BasicToken, Claimable, Managed {
+
     using SafeMath for uint256;
 
     uint256 public maxSupply;
@@ -29,11 +30,12 @@ contract MintableToken is BasicToken, Claimable, Managed {
         public
         Managed(_management)
     {
-        require(_maxSupply > 0, ERROR_WRONG_AMOUNT);
-        maxSupply = _maxSupply;
+        if (_maxSupply > 0) {
+            maxSupply = _maxSupply;
+        }
     }
 
-    function getBalancesIndex() public view returns (uint256);
+    function setBalance(address _owner, uint256 _value) internal;
 
     function mint(address _holder, uint256 _tokens)
         public
@@ -48,18 +50,24 @@ contract MintableToken is BasicToken, Claimable, Managed {
         view 
         returns (uint256 tokens) 
     {
+        if (maxSupply == 0) {
+            return 0;
+        }
+
         return maxSupply.sub(totalSupply());
     }
 
     function mintInternal(address _holder, uint256 _tokens) internal {
-        require(
-            totalSupply_.add(_tokens) <= maxSupply,
-            ERROR_NOT_AVAILABLE
-        );
+        if (maxSupply > 0) {
+            require(
+                totalSupply().add(_tokens) <= maxSupply,
+                ERROR_NOT_AVAILABLE
+            );
+        }
 
         totalSupply_ = totalSupply_.add(_tokens);
 
-        balances[getBalancesIndex()][_holder] = balances[getBalancesIndex()][_holder].add(_tokens);
+        setBalance(_holder, balanceOf(_holder).add(_tokens));
 
         emit Transfer(address(0), _holder, _tokens);
         emit Mint(_holder, _tokens);

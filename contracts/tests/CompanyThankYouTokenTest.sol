@@ -1,8 +1,8 @@
 pragma solidity ^0.4.24;
 
-import "../Company.sol";
+import "../thank-you-token/CompanyThankYouToken.sol";
 
-contract CompanyTest is Company {
+contract CompanyThankYouTokenTest is CompanyThankYouToken {
 
     constructor(
         address _managementAddress,
@@ -14,7 +14,7 @@ contract CompanyTest is Company {
         uint8 _decimals
     )
         public
-        Company(
+        CompanyThankYouToken(
             _managementAddress,
             _rewardExchangeAddress,
             _startAt,
@@ -29,5 +29,9 @@ contract CompanyTest is Company {
 
     function changeStartAtTest(uint256 _startAt) public returns(uint256) {
         startAt = _startAt;
+    }
+
+    function setTotalSupplySyncedTest() public {
+        super.setTotalSupplySynced();
     }
 }

@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../Managed.sol";
+import "../managment/Managed.sol";
 
 
 contract ManagedTest is Managed {

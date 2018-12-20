@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
-import "./Company.sol";
-import "./Managed.sol";
+import "./managment/Managed.sol";
+import {CompanyToken as Company} from "./CompanyToken.sol";
 
 
 contract CompanyFabric is Managed {
@@ -24,9 +24,10 @@ contract CompanyFabric is Managed {
         address _rewardExchangeAddress,
         uint256 _startAt,
         uint256 _periodDuration,
-        uint256 _periodTotalSupply,
+        uint256 _periodTokenMaxSupply,
         string _name,
-        uint8 _decimals
+        uint8 _decimals,
+        uint256 _defaultInitialBalance
     )
         public
         requirePermission(CAN_CREATE_COMPANY)
@@ -41,9 +42,10 @@ contract CompanyFabric is Managed {
             _rewardExchangeAddress,
             _startAt,
             _periodDuration,
-            _periodTotalSupply,
+            _periodTokenMaxSupply,
             _name,
-            _decimals
+            _decimals,
+            _defaultInitialBalance
         );
 
         company.transferOwnership(_companyOwner);

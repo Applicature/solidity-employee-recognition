@@ -3,7 +3,7 @@ const BigNumber = require('bignumber.js')
 
 const Utils = require("./utils");
 const CompanyFabric = artifacts.require('CompanyFabric')
-const Company = artifacts.require('Company')
+const Company = artifacts.require('test/CompanyThankYouTokenTest')
 const Management = artifacts.require("Management.sol")
 
 const precision = new BigNumber("1000000000000000000");
@@ -20,6 +20,7 @@ const ownerAddress = web3.eth.accounts[9];
 let startAt = parseInt(new Date().getTime() / 1000) + 3600;
 let periodDuration = 604800;//oneWeek
 let periodTotalSupply = new BigNumber('1000').mul(precision);
+let defaultInitialBalance = new BigNumber('100').mul(precision);
 
 contract('CompanyFabric', accounts => {
 
@@ -43,6 +44,7 @@ contract('CompanyFabric', accounts => {
                 periodTotalSupply,
                 'Test',
                 18,
+                defaultInitialBalance,
                 {from: accounts[1]}
             )
                 .then(Utils.receiptShouldFailed)
@@ -61,6 +63,7 @@ contract('CompanyFabric', accounts => {
                 periodTotalSupply,
                 'Test',
                 18,
+                defaultInitialBalance,
                 {from: accounts[1]}
             )
                 .then(Utils.receiptShouldSucceed);
@@ -80,6 +83,7 @@ contract('CompanyFabric', accounts => {
                 periodTotalSupply,
                 'Test',
                 18,
+                defaultInitialBalance,
                 {from: accounts[1]}
             )
             assert.equal(logs.length, 1);
@@ -108,6 +112,7 @@ contract('CompanyFabric', accounts => {
                 periodTotalSupply,
                 'Test',
                 18,
+                defaultInitialBalance,
                 {from: accounts[1]}
             )
                 .then(Utils.receiptShouldFailed)
@@ -121,6 +126,7 @@ contract('CompanyFabric', accounts => {
                 periodTotalSupply,
                 'Test',
                 18,
+                defaultInitialBalance,
                 {from: accounts[1]}
             )
                 .then(Utils.receiptShouldFailed)
@@ -134,6 +140,7 @@ contract('CompanyFabric', accounts => {
                 periodTotalSupply,
                 'Test',
                 18,
+                defaultInitialBalance,
                 {from: accounts[1]}
             )
                 .then(Utils.receiptShouldFailed)
@@ -147,19 +154,7 @@ contract('CompanyFabric', accounts => {
                 periodTotalSupply,
                 'Test',
                 18,
-                {from: accounts[1]}
-            )
-                .then(Utils.receiptShouldFailed)
-                .catch(Utils.catchReceiptShouldFailed);
-
-            await fabric.createCompany(
-                ownerAddress,
-                rewardAddress,
-                startAt,
-                periodDuration,
-                0,
-                'Test',
-                18,
+                defaultInitialBalance,
                 {from: accounts[1]}
             )
                 .then(Utils.receiptShouldFailed)
@@ -173,6 +168,7 @@ contract('CompanyFabric', accounts => {
                 periodTotalSupply,
                 'Test',
                 18,
+                defaultInitialBalance,
                 {from: accounts[1]}
             )
                 .then(Utils.receiptShouldSucceed);

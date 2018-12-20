@@ -5,9 +5,10 @@ contract Constants {
 
     // Permissions bit constants
     uint256 public constant CAN_CREATE_COMPANY = 1;
-    uint256 public constant CAN_SUSPEND_RESUME_RECOGNIZING = 1;
+    uint256 public constant CAN_SUSPEND_RESUME_RECOGNIZING = 2;
     uint256 public constant CAN_SIGN_TRANSACTION = 3;
     uint256 public constant CAN_MINT_TOKENS = 4;
+    uint256 public constant CAN_UPDATE_STATE = 5;
 
     // Contract Registry keys
     uint256 public constant CONTRACT_COMPANY_FABRIC = 1;
