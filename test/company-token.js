@@ -56,7 +56,7 @@ contract('CompanyToken', accounts => {
     })
 
     describe('CompanyToken', () => {
-/*
+
         it('check state', async () => {
             await Utils.checkState({company}, {
                 company: {
@@ -182,7 +182,7 @@ contract('CompanyToken', accounts => {
                 .then(Utils.receiptShouldFailed)
                 .catch(Utils.catchReceiptShouldFailed);
         });
-*/
+
         it('check calculateTokensAmount | increaseSpentTokens | transfer | transferFrom | updateInitialBalanceValue', async () => {
             await management.setPermission(signAddress, CAN_SIGN_TRANSACTION, true)
                 .then(Utils.receiptShouldSucceed);
