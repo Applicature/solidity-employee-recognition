@@ -31,6 +31,8 @@ contract CompanyToken is CompanyThankYouToken {
             _name,
             _decimals
         )
+        requireContractExistsInRegistry(CONTRACT_COMPANY_FABRIC)
+        canCallOnlyRegisteredContract(CONTRACT_COMPANY_FABRIC)
     {
         require(_initialBalance > 0, ERROR_WRONG_AMOUNT);
         defaultInitialBalance = _initialBalance;
@@ -76,6 +78,26 @@ contract CompanyToken is CompanyThankYouToken {
         );
     }
 
+    function isGeneratedDataTimestampValid(
+        uint256 _timestamp
+    )
+        public
+        view
+        returns (bool)
+    {
+        uint256 currentPeriod = getCurrentPeriod();
+        uint256 currentPeriodStartAt = startAt;
+
+        if (currentPeriod > 0) {
+            currentPeriodStartAt = startAt.add(currentPeriod.sub(1).mul(periodDuration));
+        }
+
+        return (
+            currentPeriodStartAt <= _timestamp &&
+            _timestamp <= currentPeriodStartAt.add(periodDuration)
+        );
+    }
+
     function claimTokens(
         uint256 _dataGenerationTimestamp,
         uint8 _v,
@@ -97,7 +119,7 @@ contract CompanyToken is CompanyThankYouToken {
         );
 
         require(
-            block.timestamp <= _dataGenerationTimestamp.add(periodDuration),
+            isGeneratedDataTimestampValid(_dataGenerationTimestamp) == true,
             ERROR_NOT_AVAILABLE
         );
 

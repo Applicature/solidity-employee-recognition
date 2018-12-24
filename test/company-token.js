@@ -13,6 +13,8 @@ const CAN_SIGN_TRANSACTION = 3;
 const CAN_MINT_TOKENS = 4;
 const CAN_UPDATE_STATE = 5;
 
+const CONTRACT_COMPANY_FABRIC = 1;
+
 const signAddress = web3.eth.accounts[7];
 const rewardAddress = web3.eth.accounts[8];
 const ownerAddress = web3.eth.accounts[9];
@@ -42,6 +44,11 @@ contract('CompanyToken', accounts => {
 
     beforeEach(async () => {
         management = await Management.new();
+
+        await management.registerContract(CONTRACT_COMPANY_FABRIC, accounts[0])
+            .then(Utils.receiptShouldSucceed);
+        await management.setPermission(accounts[0], CAN_CREATE_COMPANY, true)
+            .then(Utils.receiptShouldSucceed);
 
         company = await Company.new(
             management.address,
@@ -88,6 +95,18 @@ contract('CompanyToken', accounts => {
 
         });
 
+        it('check isGeneratedDataTimestampValid', async () => {
+            var start = parseInt(new Date().getTime() / 1000) - 3600;
+            await company.changeStartAtTest(start)
+                .then(Utils.receiptShouldSucceed);
+            await company.updateCompanyState()
+                .then(Utils.receiptShouldSucceed);
+            assert.equal(await company.isGeneratedDataTimestampValid.call(new BigNumber(start).sub(100)), false, 'isGeneratedDataTimestampValid');
+            assert.equal(await company.isGeneratedDataTimestampValid.call(new BigNumber(start).add(100)), true, 'isGeneratedDataTimestampValid');
+            assert.equal(await company.isGeneratedDataTimestampValid.call(new BigNumber(start).add(periodDuration).add(100)), false, 'isGeneratedDataTimestampValid');
+            assert.equal(await company.isGeneratedDataTimestampValid.call(new BigNumber(start).add(periodDuration).sub(100)), true, 'isGeneratedDataTimestampValid');
+        });
+
         it('check for two first periods claimTokens | verify', async () => {
             await management.setPermission(signAddress, CAN_SIGN_TRANSACTION, true)
                 .then(Utils.receiptShouldSucceed);
@@ -119,7 +138,7 @@ contract('CompanyToken', accounts => {
                 company,
                 signAddress,
                 accounts[1],
-                new BigNumber(startAt).sub(periodDuration / 2).valueOf()
+                parseInt(new Date().getTime() / 1000)
             )
                 .then(Utils.receiptShouldSucceed);
 
@@ -127,7 +146,7 @@ contract('CompanyToken', accounts => {
                 company,
                 signAddress,
                 accounts[1],
-                new BigNumber(startAt).sub(periodDuration / 2).valueOf()
+                parseInt(new Date().getTime() / 1000)
             )
                 .then(Utils.receiptShouldFailed)
                 .catch(Utils.catchReceiptShouldFailed);
@@ -141,20 +160,22 @@ contract('CompanyToken', accounts => {
             let newStartAt = new BigNumber(parseInt(new Date().getTime() / 1000) - 3600).sub(periodDuration);
             await company.changeStartAtTest(newStartAt)
                 .then(Utils.receiptShouldSucceed);
+            await company.updateCompanyState()
+                .then(Utils.receiptShouldSucceed);
 
             assert.equal(await company.getCurrentPeriod.call(), 1, 'getCurrentPeriod is not equal');
             assert.equal(await company.isTotalSupplySynced.call(), false, 'isTotalSupplySynced is not equal');
             assert.equal(await company.balanceOf.call(accounts[0]), new BigNumber(0).valueOf(), 'balanceOf is not equal');
             assert.equal(await company.balanceOf.call(accounts[1]), new BigNumber(0).mul(precision).valueOf(), 'balanceOf is not equal');
             assert.equal(await company.totalSupply.call(), new BigNumber(0).mul(precision).valueOf(), 'balanceOf is not equal');
-
             await makeTransaction(
                 company,
                 signAddress,
                 accounts[0],
-                new BigNumber(startAt).sub(periodDuration / 2).valueOf()
+                newStartAt.add(periodDuration).sub(3600).valueOf()
             )
                 .then(Utils.receiptShouldSucceed);
+
 
             assert.equal(await company.getCurrentPeriod.call(), 1, 'getCurrentPeriod is not equal');
             assert.equal(await company.isTotalSupplySynced.call(), true, 'isTotalSupplySynced is not equal');
@@ -172,12 +193,11 @@ contract('CompanyToken', accounts => {
             await company.changeRecognizingPeriodState(false, {from: accounts[3]})
                 .then(Utils.receiptShouldSucceed);
 
-
             await makeTransaction(
                 company,
                 signAddress,
                 accounts[0],
-                new BigNumber(startAt).sub(periodDuration / 2).valueOf()
+                newStartAt.add(periodDuration).sub(3600).valueOf()
             )
                 .then(Utils.receiptShouldFailed)
                 .catch(Utils.catchReceiptShouldFailed);
@@ -187,7 +207,8 @@ contract('CompanyToken', accounts => {
             await management.setPermission(signAddress, CAN_SIGN_TRANSACTION, true)
                 .then(Utils.receiptShouldSucceed);
 
-            await company.changeStartAtTest(parseInt(new Date().getTime() / 1000) - 3600)
+            let start = parseInt(new Date().getTime() / 1000) - 3600;
+            await company.changeStartAtTest(start)
                 .then(Utils.receiptShouldSucceed);
             await company.updateCompanyState()
                 .then(Utils.receiptShouldSucceed);
@@ -196,7 +217,7 @@ contract('CompanyToken', accounts => {
                 company,
                 signAddress,
                 accounts[1],
-                new BigNumber(startAt).sub(periodDuration / 2).valueOf()
+                start + 3600
             )
                 .then(Utils.receiptShouldSucceed);
 
@@ -220,7 +241,7 @@ contract('CompanyToken', accounts => {
                 company,
                 signAddress,
                 accounts[1],
-                new BigNumber(startAt).sub(periodDuration / 2).valueOf()
+                newStartAt.add(periodDuration).sub(3600 * 2).valueOf()
             )
                 .then(Utils.receiptShouldFailed)
                 .catch(Utils.catchReceiptShouldFailed);
@@ -246,7 +267,7 @@ contract('CompanyToken', accounts => {
                 company,
                 signAddress,
                 accounts[1],
-                new BigNumber(startAt).sub(periodDuration / 2).valueOf()
+                newStartAt.add(periodDuration * 2).sub(3600 * 2).valueOf()
             )
                 .then(Utils.receiptShouldSucceed);
 
@@ -278,7 +299,7 @@ contract('CompanyToken', accounts => {
                 company,
                 signAddress,
                 accounts[1],
-                new BigNumber(startAt).sub(periodDuration / 2).valueOf()
+                newStartAt.add(periodDuration * 3).sub(3600 * 2).valueOf()
             )
                 .then(Utils.receiptShouldSucceed);
 
