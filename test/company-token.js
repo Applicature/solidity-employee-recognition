@@ -80,18 +80,18 @@ contract('CompanyToken', accounts => {
                 }
             });
 
-            assert.equal(await company.isRecognizingPeriodsInProgress.call(), false, 'isRecognizingPeriodsInProgress is not equal');
+            assert.equal(await company.isRecognitionPeriodsInProgress.call(), false, 'isRecognitionPeriodsInProgress is not equal');
             await company.updateCompanyState()
                 .then(Utils.receiptShouldSucceed);
-            assert.equal(await company.isRecognizingPeriodsInProgress.call(), false, 'isRecognizingPeriodsInProgress is not equal');
+            assert.equal(await company.isRecognitionPeriodsInProgress.call(), false, 'isRecognitionPeriodsInProgress is not equal');
 
             await company.changeStartAtTest(parseInt(new Date().getTime() / 1000) - 3600)
                 .then(Utils.receiptShouldSucceed);
 
-            assert.equal(await company.isRecognizingPeriodsInProgress.call(), false, 'isRecognizingPeriodsInProgress is not equal');
+            assert.equal(await company.isRecognitionPeriodsInProgress.call(), false, 'isRecognitionPeriodsInProgress is not equal');
             await company.updateCompanyState()
                 .then(Utils.receiptShouldSucceed);
-            assert.equal(await company.isRecognizingPeriodsInProgress.call(), true, 'isRecognizingPeriodsInProgress is not equal');
+            assert.equal(await company.isRecognitionPeriodsInProgress.call(), true, 'isRecognitionPeriodsInProgress is not equal');
 
         });
 
@@ -183,14 +183,14 @@ contract('CompanyToken', accounts => {
             assert.equal(await company.balanceOf.call(accounts[1]), new BigNumber(0).mul(precision).valueOf(), 'balanceOf is not equal');
             assert.equal(await company.totalSupply.call(), new BigNumber('100').mul(precision).valueOf(), 'balanceOf is not equal');
 
-            await company.changeRecognizingPeriodState(false, {from: accounts[3]})
+            await company.changeRecognitionPeriodState(false, {from: accounts[3]})
                 .then(Utils.receiptShouldFailed)
                 .catch(Utils.catchReceiptShouldFailed);
 
             await management.setPermission(accounts[3], CAN_SUSPEND_RESUME_RECOGNIZING, true)
                 .then(Utils.receiptShouldSucceed);
 
-            await company.changeRecognizingPeriodState(false, {from: accounts[3]})
+            await company.changeRecognitionPeriodState(false, {from: accounts[3]})
                 .then(Utils.receiptShouldSucceed);
 
             await makeTransaction(
@@ -310,9 +310,9 @@ contract('CompanyToken', accounts => {
 
             assert.equal(await company.getCurrentPeriod.call(), 3, 'getCurrentPeriod is not equal');
             assert.equal(await company.isTotalSupplySynced.call(), true, 'isTotalSupplySynced is not equal');
-            assert.equal(await company.balanceOf.call(accounts[1]), new BigNumber('180000').mul(precision).valueOf(), 'balanceOf is not equal');
+            assert.equal((await company.balanceOf.call(accounts[1])).toString(), new BigNumber('1800').mul(precision).valueOf(), 'balanceOf is not equal');
             assert.equal(await company.balanceOf.call(accounts[3]), new BigNumber('0').mul(precision).valueOf(), 'balanceOf is not equal');
-            assert.equal(await company.totalSupply.call(), new BigNumber('180000').mul(precision).valueOf(), 'balanceOf is not equal');
+            assert.equal(await company.totalSupply.call(), new BigNumber('1800').mul(precision).valueOf(), 'balanceOf is not equal');
 
         });
 

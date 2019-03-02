@@ -14,7 +14,7 @@ contract CompanyThankYouToken is OpenZeppelinERC20, MintableToken {
     uint256 public periodDuration;
     uint256 public totalSupplySyncedAtPeriodIndex;
 
-    event RecognizeSent(
+    event RecognitionSent(
         address indexed whoSent,
         address indexed toWhomSent,
         uint256 tokensAmount
@@ -51,26 +51,26 @@ contract CompanyThankYouToken is OpenZeppelinERC20, MintableToken {
         rewardExchangeAddress = _rewardExchangeAddress;
         startAt = _startAt;
         periodDuration = _periodDuration;
-        companyState = CompanyState.BeforeRecognizingPeriod;
+        companyState = CompanyState.BeforeRecognitionPeriod;
     }
 
     function updateCompanyState() public {
         if (
-            companyState == CompanyState.BeforeRecognizingPeriod &&
+            companyState == CompanyState.BeforeRecognitionPeriod &&
             startAt <= block.timestamp
         ) {
-            companyState = CompanyState.RecognizingPeriodsInProgress;
+            companyState = CompanyState.RecognitionPeriodsInProgress;
         }
     }
 
-    function changeRecognizingPeriodState(bool isInProgress)
+    function changeRecognitionPeriodState(bool isInProgress)
         public
-        requirePermission(CAN_SUSPEND_RESUME_RECOGNIZING)
+        requirePermission(CAN_SUSPEND_RESUME_RECOGNITION)
     {
         if (isInProgress) {
-            companyState = CompanyState.RecognizingPeriodsInProgress;
+            companyState = CompanyState.RecognitionPeriodsInProgress;
         } else {
-            companyState = CompanyState.RecognizingPeriodsSuspended;
+            companyState = CompanyState.RecognitionPeriodsSuspended;
         }
     }
 
@@ -90,8 +90,8 @@ contract CompanyThankYouToken is OpenZeppelinERC20, MintableToken {
         return balances[getCurrentPeriod()][_owner];
     }
 
-    function isRecognizingPeriodsInProgress() public view returns (bool) {
-        return companyState == CompanyState.RecognizingPeriodsInProgress;
+    function isRecognitionPeriodsInProgress() public view returns (bool) {
+        return companyState == CompanyState.RecognitionPeriodsInProgress;
     }
 
     function transfer(address _to, uint256 _value) public returns (bool) {
@@ -109,7 +109,7 @@ contract CompanyThankYouToken is OpenZeppelinERC20, MintableToken {
             return true;
         }
 
-        emit RecognizeSent(msg.sender, _to, _value);
+        emit RecognitionSent(msg.sender, _to, _value);
         return true;
     }
 
@@ -139,7 +139,7 @@ contract CompanyThankYouToken is OpenZeppelinERC20, MintableToken {
             return true;
         }
 
-        emit RecognizeSent(_from, _to, _value);
+        emit RecognitionSent(_from, _to, _value);
         return true;
     }
 

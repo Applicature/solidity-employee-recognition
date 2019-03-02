@@ -42,7 +42,7 @@ contract('ThankYouToken', accounts => {
 
     describe('ThankYouToken', () => {
 
-        it('check state | isRecognizingPeriodsInProgress | updateCompanyState', async () => {
+        it('check state | isRecognitionPeriodsInProgress | updateCompanyState', async () => {
             await Utils.checkState({company}, {
                 company: {
                     companyState: 0,// BeforeRecognizingPeriod
@@ -58,22 +58,22 @@ contract('ThankYouToken', accounts => {
                 }
             });
 
-            assert.equal(await company.isRecognizingPeriodsInProgress.call(), false, 'isRecognizingPeriodsInProgress is not equal');
+            assert.equal(await company.isRecognitionPeriodsInProgress.call(), false, 'isRecognitionPeriodsInProgress is not equal');
             await company.updateCompanyState()
                 .then(Utils.receiptShouldSucceed);
-            assert.equal(await company.isRecognizingPeriodsInProgress.call(), false, 'isRecognizingPeriodsInProgress is not equal');
+            assert.equal(await company.isRecognitionPeriodsInProgress.call(), false, 'isRecognitionPeriodsInProgress is not equal');
 
             await company.changeStartAtTest(parseInt(new Date().getTime() / 1000) - 3600)
                 .then(Utils.receiptShouldSucceed);
 
-            assert.equal(await company.isRecognizingPeriodsInProgress.call(), false, 'isRecognizingPeriodsInProgress is not equal');
+            assert.equal(await company.isRecognitionPeriodsInProgress.call(), false, 'isRecognitionPeriodsInProgress is not equal');
             await company.updateCompanyState()
                 .then(Utils.receiptShouldSucceed);
-            assert.equal(await company.isRecognizingPeriodsInProgress.call(), true, 'isRecognizingPeriodsInProgress is not equal');
+            assert.equal(await company.isRecognitionPeriodsInProgress.call(), true, 'isRecognitionPeriodsInProgress is not equal');
 
         });
 
-        it('check getCurrentPeriod | isTotalSupplySynced | balanceOf | totalSupply | changeRecognizingPeriodState', async () => {
+        it('check getCurrentPeriod | isTotalSupplySynced | balanceOf | totalSupply | changeRecognitionPeriodState', async () => {
             await management.setPermission(accounts[0], CAN_MINT_TOKENS, true)
                 .then(Utils.receiptShouldSucceed);
 
@@ -112,14 +112,14 @@ contract('ThankYouToken', accounts => {
             assert.equal(await company.balanceOf.call(accounts[1]), new BigNumber(0).mul(precision).valueOf(), 'balanceOf is not equal');
             assert.equal(await company.totalSupply.call(), new BigNumber('100').mul(precision).valueOf(), 'balanceOf is not equal');
 
-            await company.changeRecognizingPeriodState(false, {from: accounts[3]})
+            await company.changeRecognitionPeriodState(false, {from: accounts[3]})
                 .then(Utils.receiptShouldFailed)
                 .catch(Utils.catchReceiptShouldFailed);
 
             await management.setPermission(accounts[3], CAN_SUSPEND_RESUME_RECOGNIZING, true)
                 .then(Utils.receiptShouldSucceed);
 
-            await company.changeRecognizingPeriodState(false, {from: accounts[3]})
+            await company.changeRecognitionPeriodState(false, {from: accounts[3]})
                 .then(Utils.receiptShouldSucceed);
         });
 

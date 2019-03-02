@@ -11,6 +11,8 @@ contract CompanyToken is CompanyThankYouToken {
         uint256 => mapping(address => uint256[2])
     ) periodHolderInitialAndSpentBalances;
 
+    mapping(uint256 => mapping (address => bool)) userTokenClaimsPerPeriod;
+
     constructor(
         address _managementAddress,
         address _rewardExchangeAddress,
@@ -72,10 +74,14 @@ contract CompanyToken is CompanyThankYouToken {
             currentPeriod.sub(1)
         ][_forAddress][1];
 
+        if (prevPeriodSpentBalance > prevPeriodInitialBalance) {
+            prevPeriodSpentBalance = prevPeriodInitialBalance;
+        }
+
         //previous initial balance * 2 * % spent tokens
         return prevPeriodInitialBalance.mul(2).mul(
             prevPeriodSpentBalance.mul(100).div(prevPeriodInitialBalance)
-        );
+        ).div(100);
     }
 
     function isGeneratedDataTimestampValid(
@@ -124,14 +130,19 @@ contract CompanyToken is CompanyThankYouToken {
         );
 
         updateCompanyState();
-        require(isRecognizingPeriodsInProgress(), ERROR_ACCESS_DENIED);
+        require(isRecognitionPeriodsInProgress(), ERROR_ACCESS_DENIED);
 
         if (!isTotalSupplySynced()) {
             setTotalSupplySynced();
         }
 
         //Only one claim per period allowed
-        require(balanceOf(msg.sender) == 0, ERROR_WRONG_AMOUNT);
+        require(
+            userTokenClaimsPerPeriod[getCurrentPeriod()][msg.sender] == false,
+            ERROR_ACCESS_DENIED
+        );
+
+        userTokenClaimsPerPeriod[getCurrentPeriod()][msg.sender] = true;
 
         uint256 tokensAmount = calculateTokensAmount(msg.sender);
 

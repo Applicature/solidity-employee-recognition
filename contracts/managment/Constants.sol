@@ -5,7 +5,7 @@ contract Constants {
 
     // Permissions bit constants
     uint256 public constant CAN_CREATE_COMPANY = 1;
-    uint256 public constant CAN_SUSPEND_RESUME_RECOGNIZING = 2;
+    uint256 public constant CAN_SUSPEND_RESUME_RECOGNITION = 2;
     uint256 public constant CAN_SIGN_TRANSACTION = 3;
     uint256 public constant CAN_MINT_TOKENS = 4;
     uint256 public constant CAN_UPDATE_STATE = 5;
@@ -15,9 +15,9 @@ contract Constants {
 
     // Company Sates
     enum CompanyState{
-        BeforeRecognizingPeriod,
-        RecognizingPeriodsInProgress,
-        RecognizingPeriodsSuspended
+        BeforeRecognitionPeriod,
+        RecognitionPeriodsInProgress,
+        RecognitionPeriodsSuspended
     }
 
     string public constant ERROR_ACCESS_DENIED = "ERROR_ACCESS_DENIED";
